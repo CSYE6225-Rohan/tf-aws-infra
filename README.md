@@ -1,7 +1,11 @@
 # tf-aws-infra
 
-setting up github actions workflow
+Terraform script to set up AWS VPC for demo profile.
 
-this should trigger action when pull request is raised
+Also setting up github actions workflow
 
-terraform fmt and terraform validate should run
+this should trigger following actions when pull request is raised
+
+terraform init 
+terraform fmt 
+terraform validate should run
