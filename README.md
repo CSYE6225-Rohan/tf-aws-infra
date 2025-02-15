@@ -9,8 +9,8 @@ terraform apply -var-file=terraform-demo.tfvars
 
 Also setting up github actions workflow
 
-this should trigger following actions when pull request is raised
+this should trigger following actions when pull request is raised to the main branch
 
 terraform init 
 terraform fmt 
-terraform validate should run
+terraform validate 
