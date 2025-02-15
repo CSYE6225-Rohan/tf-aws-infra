@@ -2,8 +2,8 @@ name: Terraform CI
 
 on:
   pull_request:
-    paths:
-      - '**/*.tf'  # Trigger only for Terraform files
+    branches:
+      - main  
 
 jobs:
   terraform:
