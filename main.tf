@@ -20,7 +20,7 @@ resource "aws_subnet" "public" {
 
   map_public_ip_on_launch = true
 
-  tags = {sdhsdghs
+  tags = {
     Name = "${var.vpc_name}-public-subnet-${count.index + 1}"
   }
 }
