@@ -20,3 +20,18 @@ this should trigger following actions when pull request is raised to the main br
 1. terraform init 
 2. terraform fmt 
 3. terraform validate 
+
+# List available workspaces
+terraform workspace list
+
+# Create a new workspace
+terraform workspace new <workspace_name>
+
+# Select an existing workspace
+terraform workspace select <workspace_name>
+
+# Show the current workspace
+terraform workspace show
+
+# Delete a workspace (must not be the current one)
+terraform workspace delete <workspace_name>
