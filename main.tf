@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "${var.environment}-vpc"
+    Name = "${var.vpc_name}"
   }
 }
 
@@ -21,7 +21,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.environment}-public-subnet-${count.index + 1}"
+    Name = "${var.vpc_name}-public-subnet-${count.index + 1}"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_subnet" "private" {
   availability_zone = var.azs[count.index]
 
   tags = {
-    Name = "${var.environment}-private-subnet-${count.index + 1}"
+    Name = "${var.vpc_name}-private-subnet-${count.index + 1}"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}-igw"
+    Name = "${var.vpc_name}-igw"
   }
 }
 
@@ -49,7 +49,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}-public-rt"
+    Name = "${var.vpc_name}-public-rt"
   }
 }
 
@@ -70,7 +70,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}-private-rt"
+    Name = "${var.vpc_name}-private-rt"
   }
 }
 
