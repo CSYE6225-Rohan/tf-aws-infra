@@ -1,15 +1,19 @@
+variable "vpc_name" {
+  description = "The name of the VPC"
+  type        = string
+}
 variable "aws_region" {
   description = "AWS region"
   type        = string
 }
 
 variable "aws_profile" {
-  description = "AWS Profile"
+  description = "AWS profile"
   type        = string
 }
 
 variable "environment" {
-  description = "Environment name (dev/demo)"
+  description = "Environment name"
   type        = string
 }
 
@@ -19,16 +23,16 @@ variable "vpc_cidr" {
 }
 
 variable "azs" {
-  description = "List of availability zones"
+  description = "Availability zones"
   type        = list(string)
 }
 
 variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
+  description = "Public subnet CIDRs"
   type        = list(string)
 }
 
 variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
+  description = "Private subnet CIDRs"
   type        = list(string)
 }
