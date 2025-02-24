@@ -80,3 +80,71 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+resource "aws_security_group" "app_sg" {
+  name        = "application-security-group"
+  description = "Security group for EC2 hosting web applications"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = var.app_port
+    to_port     = var.app_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "app_instance" {
+  ami                    = var.custom_ami
+  instance_type          = "t2.micro"  
+  vpc_security_group_ids = [aws_security_group.app_sg.id]
+  subnet_id              = aws_subnet.public[0].id
+  key_name               = var.key_name
+
+  root_block_device {
+    volume_size           = 25
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  disable_api_termination = false
+
+
+  user_data = <<-EOF
+              #!/bin/bash
+              cd /opt/csye6225/webapp
+              npm install
+              node server.js
+              EOF
+  tags = {
+    Name = "WebApp-Instance"
+  }
+}
