@@ -37,5 +37,9 @@ terraform workspace select <workspace_name>
 Show the current workspace:
 terraform workspace show
 
+
+
+
+
 Delete a workspace (must not be the current one):
 terraform workspace delete <workspace_name>
