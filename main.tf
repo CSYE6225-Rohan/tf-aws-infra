@@ -129,7 +129,7 @@ data "aws_ami" "latest_ubuntu_ami" {
   filter {
     name   = "name"
     values = ["custom-ubuntu-24.04-ami*"]
-  
+
   }
 }
 
@@ -138,16 +138,16 @@ resource "random_id" "key_id" {
 }
 
 resource "aws_key_pair" "my_key_pair" {
-  key_name   = "ec2_key-${random_id.key_id.hex}"  # Unique key name with random suffix
+  key_name   = "ec2_key-${random_id.key_id.hex}" # Unique key name with random suffix
   public_key = file("/Users/rohanjauhari/.ssh/xyz.pub")
 }
 resource "aws_instance" "webapp_instance" {
-  ami                    = data.aws_ami.latest_ubuntu_ami.id
-  instance_type          = "t2.micro"  
-  vpc_security_group_ids = [aws_security_group.app_sg.id]
-  subnet_id              = aws_subnet.public[0].id
+  ami                         = data.aws_ami.latest_ubuntu_ami.id
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = [aws_security_group.app_sg.id]
+  subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
-  key_name               = aws_key_pair.my_key_pair.key_name
+  key_name                    = aws_key_pair.my_key_pair.key_name
 
   root_block_device {
     volume_size           = 25
@@ -168,7 +168,7 @@ resource "aws_instance" "webapp_instance" {
     Name = "WebApp-Instance"
   }
 
-  
+
 }
 output "public_ip" {
   value = aws_instance.webapp_instance.public_ip
