@@ -37,17 +37,7 @@ variable "private_subnet_cidrs" {
   type        = list(string)
 }
 
-variable "custom_ami" {
-  description = "Custom AMI ID"
-  type        = string
-}
-
 variable "app_port" {
   description = "Port on which the application runs"
   type        = number
-}
-
-variable "key_name" {
-  description = "SSH key pair name"
-  type        = string
 }
