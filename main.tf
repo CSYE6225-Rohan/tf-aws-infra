@@ -139,7 +139,7 @@ resource "random_id" "key_id" {
 
 resource "aws_key_pair" "my_key_pair" {
   key_name   = "ec2_key-${random_id.key_id.hex}" # Unique key name with random suffix
-  public_key = file("./publicKey.pub")
+  public_key = var.public_key
 }
 
 
