@@ -139,6 +139,11 @@ variable "db_instance_tag" {
   default = "CSYE6225 RDS Instance"
 }
 
+variable "public_key" {
+  type    = string
+  default = "public key"
+}
+
 variable "ami_owners" {
   type    = list(string)
   default = ["266735815279"]
