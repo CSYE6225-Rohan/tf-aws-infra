@@ -1,7 +1,41 @@
-aws_region           = "<AWS_REGION>"
-aws_profile          = "<AWS_PROFILE>"
-environment          = "<ENVIRONMENT>"
-vpc_cidr             = "<VPC_CIDR>"
-azs                  = ["<AZ_1>", "<AZ_2>", "<AZ_3>"]
-public_subnet_cidrs  = ["<PUBLIC_SUBNET_1>", "<PUBLIC_SUBNET_2>", "<PUBLIC_SUBNET_3>"]
-private_subnet_cidrs = ["<PRIVATE_SUBNET_1>", "<PRIVATE_SUBNET_2>", "<PRIVATE_SUBNET_3>"]
+# AWS Configuration
+aws_region           = "us-east-1"
+aws_profile          = "your-aws-profile"
+environment          = "your-environment"
+
+# VPC Configuration
+vpc_name             = "your-vpc-name"
+vpc_cidr             = "10.0.0.0/16"
+azs                  = ["us-east-1a", "us-east-1b", "us-east-1c"]
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnet_cidrs = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+
+# Application Configuration
+app_port             = 8080
+
+# AWS Credentials (Use environment variables for security instead)
+aws_access           = "your-aws-access-key"
+aws_secret_access    = "your-aws-secret-key"
+
+# Database Configuration
+db_password             = "your-secure-password"
+db_instance_identifier  = "your-db-identifier"
+db_engine              = "mysql"
+db_engine_version      = "8.0.35"
+db_instance_class      = "db.t3.micro"
+db_allocated_storage   = 20
+db_username            = "your-db-username"
+db_name                = "your-db-name"
+db_publicly_accessible = false
+db_multi_az            = false
+db_skip_final_snapshot = true
+db_instance_tag        = "your-db-instance-tag"
+
+# EC2 Configuration
+instance_type        = "t2.micro"
+associate_public_ip_address = true
+
+# Storage Configuration
+volume_size           = 25
+volume_type           = "gp2"
+delete_on_termination = true
