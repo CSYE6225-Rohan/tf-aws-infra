@@ -321,5 +321,4 @@ resource "aws_instance" "webapp_instance" {
     Name = "WebApp-Instance"
   }
 
-
 }
