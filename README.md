@@ -39,3 +39,9 @@ terraform workspace show
 
 Delete a workspace (must not be the current one):
 terraform workspace delete <workspace_name>
+
+export the profile you want to be in
+export AWS_PROFILE=<your-profile-name>
+
+if profile is not configured,
+aws configure --profile <your-profile-name>
