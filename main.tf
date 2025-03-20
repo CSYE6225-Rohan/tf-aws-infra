@@ -183,9 +183,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   }
 }
 
-output "bucket_name" {
-  value = aws_s3_bucket.private_bucket.id
-}
+
 
 # Create the database security group (for RDS)
 resource "aws_security_group" "db_sg" {
@@ -206,7 +204,7 @@ resource "aws_security_group" "db_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.app_sg.id]  # Only allow traffic from app_sg
   }
 
   tags = {
@@ -214,14 +212,6 @@ resource "aws_security_group" "db_sg" {
   }
 }
 
-# Output Security Group IDs
-output "app_sg_id" {
-  value = aws_security_group.app_sg.id
-}
-
-output "db_sg_id" {
-  value = aws_security_group.db_sg.id
-}
 
 # Create a DB Parameter Group for MySQL 8.0
 resource "aws_db_parameter_group" "custom_pg" {
@@ -285,9 +275,6 @@ output "rds_endpoint" {
   value = aws_db_instance.csye6225_rds.endpoint
 }
 
-output "db_parameter_group_name" {
-  value = aws_db_parameter_group.custom_pg.name
-}
 
 resource "aws_instance" "webapp_instance" {
   ami                         = data.aws_ami.latest_ubuntu_ami.id
