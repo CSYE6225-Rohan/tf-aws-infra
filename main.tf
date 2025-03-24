@@ -275,7 +275,70 @@ output "rds_endpoint" {
   value = aws_db_instance.csye6225_rds.endpoint
 }
 
+# Combined IAM Role
+resource "aws_iam_role" "ec2_combined_role" {
+  name = "EC2-Combined-Role"
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "EC2-Combined-Role"
+  }
+}
+
+# CloudWatch Agent and S3 Full Access Policies
+resource "aws_iam_policy" "combined_policy" {
+  name        = "EC2-Combined-Policy"
+  description = "Policy for CloudWatch Agent and S3 Full Access"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "cloudwatch:PutMetricData",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeTags",
+          "logs:PutLogEvents",
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup",
+          "logs:DescribeLogStreams"
+        ],
+        Effect   = "Allow",
+        Resource = "*"
+      },
+      {
+        Action = "s3:*",
+        Effect = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach Policy to IAM Role
+resource "aws_iam_role_policy_attachment" "attach_combined_policy" {
+  role       = aws_iam_role.ec2_combined_role.name
+  policy_arn = aws_iam_policy.combined_policy.arn
+}
+
+# Instance Profile
+resource "aws_iam_instance_profile" "ec2_combined_profile" {
+  name = "EC2-Combined-Profile"
+  role = aws_iam_role.ec2_combined_role.name
+}
+
+# Update EC2 instance to use the combined IAM role
 resource "aws_instance" "webapp_instance" {
   ami                         = data.aws_ami.latest_ubuntu_ami.id
   instance_type               = var.instance_type
@@ -283,13 +346,13 @@ resource "aws_instance" "webapp_instance" {
   subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = var.associate_public_ip_address
   key_name                    = aws_key_pair.my_key_pair.key_name
+  iam_instance_profile        = aws_iam_instance_profile.ec2_combined_profile.name
   root_block_device {
     volume_size           = var.volume_size
     volume_type           = var.volume_type
     delete_on_termination = var.delete_on_termination
   }
 
-  disable_api_termination = false
 
 
   user_data = <<-EOF
@@ -303,9 +366,88 @@ resource "aws_instance" "webapp_instance" {
               echo "AWS_ACCESS_KEY_ID=${var.aws_access}" >> .env
               echo "AWS_SECRET_ACCESS_KEY=${var.aws_secret_access}" >> .env
               echo "AWS_REGION=${var.aws_region}" >> .env
+              
+              # Install CloudWatch Agent
+              curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+              sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+              # Create CloudWatch Agent config
+              cat <<CONFIG > /opt/aws/amazon-cloudwatch-agent/bin/config.json
+              {
+                "agent": {
+                  "metrics_collection_interval": 60,
+                  "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+                },
+                "metrics": {
+                  "metrics_collected": {
+                    "cpu": {
+                      "measurement": ["usage_idle", "usage_user", "usage_system"],
+                      "metrics_collection_interval": 60
+                    },
+                    "disk": {
+                      "measurement": ["used_percent"],
+                      "metrics_collection_interval": 60,
+                      "resources": ["*"]
+                    },
+                    "mem": {
+                      "measurement": ["used_percent"],
+                      "metrics_collection_interval": 60
+                    }
+                  }
+                },
+                "logs": {
+                  "logs_collected": {
+                    "files": {
+                      "collect_list": [
+                        {
+                          "file_path": "/var/log/syslog",
+                          "log_group_name": "syslog-group",
+                          "log_stream_name": "{instance_id}-syslog"
+                        },
+                        {
+                          "file_path": "/var/log/app.log",
+                          "log_group_name": "applog-group",
+                          "log_stream_name": "{instance_id}-applog"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+              CONFIG
+
+              # Start CloudWatch Agent on boot
+              sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+              sudo systemctl enable amazon-cloudwatch-agent
+
+              # Install and configure StatsD
+              sudo apt-get install -y statsd
+              sudo tee /etc/statsd/config.js > /dev/null <<EOL
+              {
+                port: 8125,
+                backends: ["./backends/console", "./backends/cloudwatch"],
+                cloudwatch: {
+                  region: "${var.aws_region}",
+                  namespace: "WebAppMetrics",
+                  dimensions: {
+                    "Environment": "production"
+                  }
+                }
+              }
+              EOL
+
+              # Start StatsD service
+              sudo service statsd restart
+              
+              # Restart CloudWatch Agent to ensure new configuration is applied
+              sudo systemctl restart amazon-cloudwatch-agent
+
+              # Enable CloudWatch Agent on startup
+              sudo systemctl enable amazon-cloudwatch-agent
+
               EOF
+
   tags = {
     Name = "WebApp-Instance"
   }
-
 }
