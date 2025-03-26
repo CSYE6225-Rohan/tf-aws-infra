@@ -363,8 +363,6 @@ resource "aws_instance" "webapp_instance" {
               sed -i "s/^password=.*/password=${aws_db_instance.csye6225_rds.password}/" .env
               sed -i "s/^hostname=.*/hostname=$(echo ${aws_db_instance.csye6225_rds.endpoint} | cut -d ':' -f 1)/" .env
               sed -i "s/^database=.*/database=${aws_db_instance.csye6225_rds.db_name}/" .env
-              echo "AWS_ACCESS_KEY_ID=${var.aws_access}" >> .env
-              echo "AWS_SECRET_ACCESS_KEY=${var.aws_secret_access}" >> .env
               echo "AWS_REGION=${var.aws_region}" >> .env
               
               # Install CloudWatch Agent
