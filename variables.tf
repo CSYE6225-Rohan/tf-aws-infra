@@ -148,3 +148,8 @@ variable "ami_owners" {
   type    = list(string)
   default = ["266735815279"]
 }
+
+variable "zone_id" {
+  type    = string
+  default = "Z0895763G312FT8J372X"
+}
