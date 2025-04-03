@@ -153,3 +153,69 @@ variable "zone_id" {
   type    = string
   default = "Z0895763G312FT8J372X"
 }
+
+variable "desired_capacity" {
+  description = "Desired number of EC2 instances"
+  type        = number
+}
+
+variable "min_size" {
+  description = "minimum number of EC2 instances"
+  type        = number
+}
+
+variable "max_size" {
+  description = "Maximum number of EC2 instances"
+  type        = number
+}
+
+variable "scale_down_evaluation_periods" {
+  description = "Times"
+  type        = number
+}
+
+variable "scale_down_period" {
+  type    = number
+}
+
+variable "scale_down_threshold" {
+  type    = number
+}
+
+variable "scale_up_evaluation_periods" {
+  description = "Times"
+  type        = number
+}
+
+variable "scale_up_period" {
+  type    = number
+}
+
+variable "scale_up_threshold" {
+  type    = number
+}
+
+variable "cooldown" {
+  type    = number
+}
+variable "scale_down_adjustment" {
+  type    = number
+}
+variable "scale_up_adjustment" {
+  type    = number
+}
+variable "health_check_grace_period" {
+  type    = number
+}
+variable "health_check_interval" {
+  type    = number
+}
+variable "health_check_timeout" {
+  type    = number
+}
+variable "healthy_threashold" {
+  type    = number
+}
+variable "unhealthy_threshold" {
+  type    = number
+}
