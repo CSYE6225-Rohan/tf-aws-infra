@@ -594,8 +594,8 @@ resource "aws_autoscaling_policy" "scale_up" {
   name                   = "scale-up"
   autoscaling_group_name = aws_autoscaling_group.example.name
   adjustment_type        = "ChangeInCapacity"
-  scaling_adjustment     = 1
-  cooldown               = 60
+  scaling_adjustment     = var.scale_up_adjustment
+  cooldown               = var.cooldown
   policy_type            = "SimpleScaling"
 }
 
@@ -603,21 +603,21 @@ resource "aws_autoscaling_policy" "scale_down" {
   name                   = "scale-down"
   autoscaling_group_name = aws_autoscaling_group.example.name
   adjustment_type        = "ChangeInCapacity"
-  scaling_adjustment     = -1
-  cooldown               = 60
+  scaling_adjustment     = var.scale_down_adjustment
+  cooldown               = var.cooldown
   policy_type            = "SimpleScaling"
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
   alarm_name                = "scale-up-cpu-utilization-alarm"
   comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = 1
+  evaluation_periods        = var.scale_up_period
   metric_name               = "CPUUtilization"
   namespace                 = "AWS/EC2"
-  period                    = 10  
+  period                    = var.scale_up_period  
   statistic                 = "Average"
-  threshold                 = 13  
-  alarm_description         = "Triggers scale-up policy when CPU utilization exceeds 13%"
+  threshold                 = var.scale_up_threshold  
+  alarm_description         = "Triggers scale-up policy when CPU utilization exceeds threshold"
   insufficient_data_actions = []
   
   dimensions = {
@@ -634,13 +634,13 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
 resource "aws_cloudwatch_metric_alarm" "scale_down_step_alarm" {
   alarm_name                = "scale-down-step-cpu-utilization-alarm"
   comparison_operator       = "LessThanThreshold"
-  evaluation_periods        = 1
+  evaluation_periods        = var.scale_down_evaluation_periods
   metric_name               = "CPUUtilization"
   namespace                 = "AWS/EC2"
-  period                    = 10  
+  period                    = var.scale_down_period  
   statistic                 = "Average"
-  threshold                 = 10  
-  alarm_description         = "Triggers step scaling to decrease instances when CPU < 10%"
+  threshold                 = var.scale_down_threshold
+  alarm_description         = "Triggers step scaling to decrease instances when CPU < threshold"
 
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.example.name
@@ -680,7 +680,7 @@ resource "aws_lb_listener" "http" {
 # Target Group for EC2 instances (Port your app listens on, e.g., 8080)
 resource "aws_lb_target_group" "example" {
   name     = "example-target-group"
-  port     = 8080  
+  port     = var.app_port  
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 
@@ -688,10 +688,10 @@ resource "aws_lb_target_group" "example" {
     protocol = "HTTP"
     path     = "/healthz"
     matcher = "200"  
-    interval = 10
-    timeout  = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
+    interval = var.health_check_interval
+    timeout  = var.health_check_timeout
+    healthy_threshold   = var.healthy_threashold
+    unhealthy_threshold = var.unhealthy_threshold
   }
 } 
 
@@ -703,16 +703,16 @@ resource "aws_autoscaling_attachment" "asg_attachment" {
 
 # Auto Scaling Group (with ALB integration)
 resource "aws_autoscaling_group" "example" {
-  desired_capacity     = 5
-  min_size             = 3
-  max_size             = 10
+  desired_capacity     = var.desired_capacity 
+  min_size             = var.min_size 
+  max_size             = var.max_size 
   launch_template {
     id      = aws_launch_template.webapp_template.id
     version = "$Latest"
   }
   vpc_zone_identifier  = flatten([for subnet in aws_subnet.public : subnet.id])
   health_check_type     = "ELB"
-  health_check_grace_period = 300
+  health_check_grace_period = var.health_check_grace_period
 
   # Attach the ALB Target Group
   target_group_arns = [aws_lb_target_group.example.arn]
