@@ -525,7 +525,7 @@ resource "aws_launch_template" "webapp_template" {
 
   # Associate public IP address in the launch template
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = var.associate_public_ip_address
     security_groups = [aws_security_group.app_sg.id]
   }
     block_device_mappings {
