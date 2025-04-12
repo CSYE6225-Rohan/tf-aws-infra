@@ -45,3 +45,5 @@ export AWS_PROFILE=<your-profile-name>
 
 if profile is not configured,
 aws configure --profile <your-profile-name>
+
+aws acm import-certificate --certificate fileb://cleaned.pem --certificate-chain fileb://cleaned.chain --private-key fileb://cleaned.key

@@ -7,16 +7,6 @@ variable "aws_region" {
   type        = string
 }
 
-variable "aws_access" {
-  description = "AWS access key id"
-  type        = string
-}
-
-variable "aws_secret_access" {
-  description = "AWS secret access key"
-  type        = string
-}
-
 variable "aws_profile" {
   description = "AWS profile"
   type        = string
