@@ -38,6 +38,6 @@ terraform.rc
 .DS_Store
 
 *.pub
-.key
-.crt
-.ca-bundle
+*.key
+*.crt
+*.ca-bundle
