@@ -514,7 +514,7 @@ resource "aws_security_group" "load_balancer_sg" {
 # Launch Template for EC2 Instances
 resource "aws_launch_template" "webapp_template" {
   name = "webapp-launch-template"
-  image_id      = "ami-00c03fbee4a2fbccf"
+  image_id      = data.aws_ami.latest_ubuntu_ami.id
   instance_type = var.instance_type
   key_name      = aws_key_pair.my_key_pair.key_name
     iam_instance_profile {
